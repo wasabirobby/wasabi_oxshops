@@ -4,6 +4,8 @@
 
 Config = {}
 
+Config.checkForUpdates = true -- Check for updates?
+
 Config.Shops = {
     ['uwucafe'] = { -- Job name
         label = 'UwU Cafe',
