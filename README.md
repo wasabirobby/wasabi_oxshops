@@ -27,7 +27,7 @@ This resource was created as a free script to allow those with ox_inventory to h
 - Will add likely quite a few more features so stay tuned.
 
 ## Preview
-[YouTube - Wasabi Ox Shops](https://www.youtube.com/watch?v=LUJSA47ZwBg)
+[YouTube - Wasabi Ox Shops](https://www.youtube.com/watch?v=ZeVbKHbf8W8)
 
 # Support
 <a href='https://discord.gg/79zjvy4JMs'>![Discord Banner 2](https://discordapp.com/api/guilds/1025493337031049358/widget.png?style=banner2)</a>
