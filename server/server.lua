@@ -38,25 +38,25 @@ CreateThread(function()
 				}
 			})
 		end
-		swapHooks[k] = exports.ox_inventory:registerHook('swapItems', function(payload)
-			if payload.fromInventory == k then
-				TriggerEvent('wasabi_oxshops:refreshShop', k)
-			elseif payload.toInventory == k and tonumber(payload.fromInventory) ~= nil then
-				TriggerClientEvent('wasabi_oxshops:setProductPrice', payload.fromInventory, k, payload.toSlot)
-			end
-		end, {})
-		createHooks[k] = exports.ox_inventory:registerHook('createItem', function(payload)
-			local metadata = payload.metadata
-			if metadata?.shopData then
-				local price = metadata.shopData.price
-				local count = payload.count
-				exports.ox_inventory:RemoveItem(metadata.shopData.shop, payload.item.name, payload.count)
-				TriggerEvent('esx_addonaccount:getSharedAccount', 'society_'..metadata.shopData.shop, function(account)
-					account.addMoney(price)
-				end)
-			end
-		end, {})
 	end
+	swapHooks[k] = exports.ox_inventory:registerHook('swapItems', function(payload)
+		if payload.fromInventory == k then
+			TriggerEvent('wasabi_oxshops:refreshShop', k)
+		elseif payload.toInventory == k and tonumber(payload.fromInventory) ~= nil then
+			TriggerClientEvent('wasabi_oxshops:setProductPrice', payload.fromInventory, k, payload.toSlot)
+		end
+	end, {})
+	createHooks[k] = exports.ox_inventory:registerHook('createItem', function(payload)
+		local metadata = payload.metadata
+		if metadata?.shopData then
+			local price = metadata.shopData.price
+			local count = payload.count
+			exports.ox_inventory:RemoveItem(metadata.shopData.shop, payload.item.name, payload.count)
+			TriggerEvent('esx_addonaccount:getSharedAccount', 'society_'..metadata.shopData.shop, function(account)
+				account.addMoney(price)
+			end)
+		end
+	end, {})
 end)
 
 RegisterServerEvent('wasabi_oxshops:refreshShop', function(shop)
