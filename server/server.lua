@@ -38,14 +38,15 @@ CreateThread(function()
 				}
 			})
 		end
+		swapHooks[k] = exports.ox_inventory:registerHook('swapItems', function(payload)
+			if payload.fromInventory == k then
+				TriggerEvent('wasabi_oxshops:refreshShop', k)
+			elseif payload.toInventory == k and tonumber(payload.fromInventory) ~= nil then
+				TriggerClientEvent('wasabi_oxshops:setProductPrice', payload.fromInventory, k, payload.toSlot)
+			end
+		end, {})
+		k = k
 	end
-	swapHooks[k] = exports.ox_inventory:registerHook('swapItems', function(payload)
-		if payload.fromInventory == k then
-			TriggerEvent('wasabi_oxshops:refreshShop', k)
-		elseif payload.toInventory == k and tonumber(payload.fromInventory) ~= nil then
-			TriggerClientEvent('wasabi_oxshops:setProductPrice', payload.fromInventory, k, payload.toSlot)
-		end
-	end, {})
 	createHooks[k] = exports.ox_inventory:registerHook('createItem', function(payload)
 		local metadata = payload.metadata
 		if metadata?.shopData then
