@@ -1,11 +1,21 @@
 -----------------For support, scripts, and more----------------
 --------------- https://discord.gg/wasabiscripts  -------------
 ---------------------------------------------------------------
-ESX = exports['es_extended']:getSharedObject()
+local ESX = exports['es_extended']:getSharedObject()
+local inventory = exports.ox_inventory
+local TriggerEvent = TriggerEvent
+local RegisterNetEvent = RegisterNetEvent
+local CreateThread = CreateThread
+
 local swapHooks, createHooks = {}, {}
 
+if Config.checkForUpdates then
+    lib.versionCheck("wasabirobby/wasabi_oxshops")
+end
+
+
 CreateThread(function()
-    while ESX == nil do Wait() end
+    while ESX == nil do Wait(0) end
     for k,_ in pairs(Config.Shops) do
         TriggerEvent('esx_society:registerSociety', k, k, 'society_'..k, 'society_'..k, 'society_'..k, {type = 'public'})
     end
@@ -20,17 +30,17 @@ CreateThread(function()
 			slots = 50,
 			weight = 100000,
 		}
-		exports.ox_inventory:RegisterStash(stash.id, stash.label, stash.slots, stash.weight)
-		local items = exports.ox_inventory:GetInventoryItems(k, false)
+		inventory:RegisterStash(stash.id, stash.label, stash.slots, stash.weight)
+		local items = inventory:GetInventoryItems(k, false)
 		local stashItems = {}
 		if items and items ~= {} then
-			for k,v in pairs(items) do
+			for _,v in pairs(items) do
 				if v and v.name then
 					stashItems[#stashItems + 1] = { name = v.name, metadata = v.metadata, count = v.count, price = (v.metadata.shopData.price or 0) }
 				end
 			end
 			local x,y,z = table.unpack(v.locations.shop.coords)
-			exports.ox_inventory:RegisterShop(k, {
+			inventory:RegisterShop(k, {
 				name = v.label,
 				inventory = stashItems,
 				locations = {
@@ -38,7 +48,7 @@ CreateThread(function()
 				}
 			})
 		end
-		swapHooks[k] = exports.ox_inventory:registerHook('swapItems', function(payload)
+		swapHooks[k] = inventory:registerHook('swapItems', function(payload)
 			if payload.fromInventory == k then
 				TriggerEvent('wasabi_oxshops:refreshShop', k)
 			elseif payload.toInventory == k and tonumber(payload.fromInventory) ~= nil then
@@ -46,12 +56,12 @@ CreateThread(function()
 			end
 		end, {})
 			
-		createHooks[k] = exports.ox_inventory:registerHook('createItem', function(payload)
+		createHooks[k] = inventory:registerHook('createItem', function(payload)
 		   local metadata = payload.metadata
 			if metadata?.shopData then
 				local price = metadata.shopData.price
 				local count = payload.count
-				exports.ox_inventory:RemoveItem(metadata.shopData.shop, payload.item.name, payload.count)
+				inventory:RemoveItem(metadata.shopData.shop, payload.item.name, payload.count)
 				TriggerEvent('esx_addonaccount:getSharedAccount', 'society_'..metadata.shopData.shop, function(account)
 					account.addMoney(price)
 				end)
@@ -63,11 +73,11 @@ CreateThread(function()
 	
 end)
 
-RegisterServerEvent('wasabi_oxshops:refreshShop', function(shop)
+RegisterNetEvent('wasabi_oxshops:refreshShop', function(shop)
 	Wait(250)
-	local items = exports.ox_inventory:GetInventoryItems(shop, false)
+	local items = inventory:GetInventoryItems(shop, false)
 	local stashItems = {}
-	for k,v in pairs(items) do
+	for _, v in pairs(items) do
 		if v and v.name then
 			local metadata = v.metadata
 			if metadata?.shopData then
@@ -75,7 +85,7 @@ RegisterServerEvent('wasabi_oxshops:refreshShop', function(shop)
 			end
 		end
 	end
-	exports.ox_inventory:RegisterShop(shop, {
+	inventory:RegisterShop(shop, {
 		name = Config.Shops[shop].label,
 		inventory = stashItems,
 		locations = {
@@ -84,15 +94,15 @@ RegisterServerEvent('wasabi_oxshops:refreshShop', function(shop)
 	})
 end)
 
-RegisterServerEvent('wasabi_oxshops:setData', function(shop, slot, price)
-	local item = exports.ox_inventory:GetSlot(shop, slot)
+RegisterNetEvent('wasabi_oxshops:setData', function(shop, slot, price)
+	local item = inventory:GetSlot(shop, slot)
 	if not item then return end
 	local metadata = item.metadata
 	metadata.shopData = {
 		shop = shop,
 		price = price
 	}
-	exports.ox_inventory:SetMetadata(shop, slot, metadata)
+	inventory:SetMetadata(shop, slot, metadata)
 	TriggerEvent('wasabi_oxshops:refreshShop', shop)
 end)
 
@@ -100,9 +110,9 @@ end)
 AddEventHandler('onResourceStop', function(resourceName)
 	if (GetCurrentResourceName() ~= resourceName) then return end
 	for i=1, #swapHooks do
-		exports.ox_inventory:removeHooks(swapHooks[i])
+		inventory:removeHooks(swapHooks[i])
 	end
 	for i=1, #createHooks do
-		exports.ox_inventory:removeHooks(createHooks[i])
+		inventory:removeHooks(createHooks[i])
 	end
   end)

@@ -1,7 +1,13 @@
 -----------------For support, scripts, and more----------------
 --------------- https://discord.gg/wasabiscripts  -------------
 ---------------------------------------------------------------
-ESX = exports['es_extended']:getSharedObject()
+local RegisterNetEvent = RegisterNetEvent
+local TriggerEvent = TriggerEvent
+local TriggerServerEvent = TriggerServerEvent
+local CreateThread = CreateThread
+local Wait = Wait
+local inventory = exports.ox_inventory
+local ESX = exports['es_extended']:getSharedObject()
 
 RegisterNetEvent('esx:playerLoaded', function(xPlayer)
     ESX.PlayerData = xPlayer
@@ -18,8 +24,7 @@ RegisterNetEvent('esx:setJob', function(job)
 end)
 
 
-RegisterNetEvent('wasabi_oxshops:setProductPrice')
-AddEventHandler('wasabi_oxshops:setProductPrice', function(shop, slot)
+RegisterNetEvent('wasabi_oxshops:setProductPrice', function(shop, slot)
     local input = lib.inputDialog(Strings.sell_price, {Strings.amount_input})
     local price
     if not input then price = 0 end
@@ -43,7 +48,7 @@ local function createBlip(coords, sprite, color, text, scale)
     SetBlipColour(blip, color)
     SetBlipAsShortRange(blip, true)
     BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString(text)
+    AddTextComponentSubstringPlayerName(text)
     EndTextCommandSetBlipName(blip)
     return blip
 end
@@ -81,7 +86,7 @@ CreateThread(function()
                 end
                 sleep = 0
                 if IsControlJustReleased(0, 38) then
-                    exports.ox_inventory:openInventory('stash', k)
+                    inventory:openInventory('stash', k)
                 end
             elseif distShop <= v.locations.shop.range then
                 if not textUI then
@@ -90,7 +95,7 @@ CreateThread(function()
                 end
                 sleep = 0
                 if IsControlJustReleased(0, 38) then
-                    exports.ox_inventory:openInventory('shop', { type = k, id = 1 })
+                    inventory:openInventory('shop', { type = k, id = 1 })
                 end
             elseif distBoss and distBoss <= v.bossMenu.range then
                 if not textUI then
