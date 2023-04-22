@@ -46,12 +46,12 @@ CreateThread(function()
 			end
 		end, {})
 			
-		createHooks[k] = exports.ox_inventory:registerHook('createItem', function(payload)
+		createHooks[k] = exports.ox_inventory:registerHook('buyItem', function(payload)
 		   local metadata = payload.metadata
 			if metadata?.shopData then
 				local price = metadata.shopData.price
 				local count = payload.count
-				exports.ox_inventory:RemoveItem(metadata.shopData.shop, payload.item.name, payload.count)
+				exports.ox_inventory:RemoveItem(metadata.shopData.shop, payload.itemName, payload.count)
 				TriggerEvent('esx_addonaccount:getSharedAccount', 'society_'..metadata.shopData.shop, function(account)
 					account.addMoney(price)
 				end)
