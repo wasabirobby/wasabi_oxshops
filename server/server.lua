@@ -62,7 +62,7 @@ CreateThread(function()
 	 end, {})
 end)
 
-RegisterServerEvent('wasabi_oxshops:refreshShop', function(shop)
+RegisterNetEvent('wasabi_oxshops:refreshShop', function(shop)
 	Wait(250)
 	local items = exports.ox_inventory:GetInventoryItems(shop, false)
 	local stashItems = {}
@@ -83,7 +83,7 @@ RegisterServerEvent('wasabi_oxshops:refreshShop', function(shop)
 	})
 end)
 
-RegisterServerEvent('wasabi_oxshops:setData', function(shop, slot, price)
+RegisterNetEvent('wasabi_oxshops:setData', function(shop, slot, price)
 	local item = exports.ox_inventory:GetSlot(shop, slot)
 	if not item then return end
 	local metadata = item.metadata
