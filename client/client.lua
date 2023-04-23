@@ -57,57 +57,96 @@ CreateThread(function()
 end)
 
 CreateThread(function()
-    local textUI, shopLoc, stashLoc = nil, nil, nil
-    while true do
-        local sleep = 1500
-        local coords = GetEntityCoords(PlayerPedId())
-        for k,v in pairs(Config.Shops) do
-            local stashLoc = v.locations.stash.coords
-            local shopLoc = v.locations.shop.coords
-            local bossLoc
-            if v.bossMenu.enabled then
-                bossLoc = v.bossMenu.coords
-            end
-            local distStash = #(coords - stashLoc)
-            local distShop = #(coords - shopLoc)
-            local distBoss
-            if bossLoc then
-                distBoss = #(coords - bossLoc)
-            end
-            if distStash <= v.locations.stash.range and ESX.PlayerData.job.name == k then
+    local textUI, points = nil, {}
+    while not ESX.PlayerLoaded do Wait(1000) end
+    for k,v in pairs(Config.Shops) do
+        local stashLoc = v.locations.stash.coords
+        local shopLoc = v.locations.shop.coords
+        local bossLoc
+        if v.bossMenu.enabled then
+            bossLoc = v.bossMenu.coords
+        end
+        if not points[k] then points[k] = {} end
+        points[k].stash = lib.points.new({
+            coords = v.locations.stash.coords,
+            distance = v.locations.stash.range,
+            shop = k
+        })
+        points[k].shop = lib.points.new({
+            coords = v.locations.shop.coords,
+            distance = v.locations.shop.range,
+            shop = k
+        })
+        if v.bossMenu.enabled then
+            points[k].bossMenu = lib.points.new({
+                coords = v.bossMenu.coords,
+                distance = v.bossMenu.range,
+                shop = k
+            })
+        end
+    end
+    for k,v in pairs(points) do
+        function v.stash:nearby()
+            if not self.isClosest or ESX.PlayerData.job.name ~= self.shop then return end
+            if self.currentDistance < self.distance then
                 if not textUI then
-                    lib.showTextUI(v.locations.stash.string)
+                    lib.showTextUI(Config.Shops[self.shop].locations.stash.string)
                     textUI = true
                 end
-                sleep = 0
                 if IsControlJustReleased(0, 38) then
-                    exports.ox_inventory:openInventory('stash', k)
+                    exports.ox_inventory:openInventory('stash', self.shop)
                 end
-            elseif distShop <= v.locations.shop.range then
-                if not textUI then
-                    lib.showTextUI(v.locations.shop.string)
-                    textUI = true
-                end
-                sleep = 0
-                if IsControlJustReleased(0, 38) then
-                    exports.ox_inventory:openInventory('shop', { type = k, id = 1 })
-                end
-            elseif distBoss and distBoss <= v.bossMenu.range then
-                if not textUI then
-                    lib.showTextUI(v.bossMenu.string)
-                    textUI = true
-                end
-                sleep = 0
-                if IsControlJustReleased(0, 38) and ESX.PlayerData.job.grade_name == 'boss' then
-                    TriggerEvent('esx_society:openBossMenu', ESX.PlayerData.job.name, function(data, menu)
-                        menu.close()
-                    end, {wash = false})
-                end
-            elseif textUI then
+            end
+        end
+        function v.stash:onExit()
+            if not self.isClosest then return end
+            if textUI then
                 lib.hideTextUI()
                 textUI = nil
             end
         end
-        Wait(sleep)
+
+        function v.shop:nearby()
+            if not self.isClosest then return end
+            if self.currentDistance < self.distance then
+                if not textUI then
+                    lib.showTextUI(Config.Shops[self.shop].locations.shop.string)
+                    textUI = true
+                end
+                if IsControlJustReleased(0, 38) then
+                    exports.ox_inventory:openInventory('shop', { type = self.shop, id = 1 })
+                end
+            end
+        end
+        function v.shop:onExit()
+            if not self.isClosest then return end
+            if textUI then
+                lib.hideTextUI()
+                textUI = nil
+            end
+        end
+
+        if v?.bossMenu then
+            function v.bossMenu:nearby()
+                if not self.isClosest then return end
+                if self.currentDistance < self.distance then
+                    if not textUI then
+                        lib.showTextUI(Config.Shops[self.shop].bossMenu.string)
+                        textUI = true
+                    end
+                    if IsControlJustReleased(0, 38) and ESX.PlayerData.job.grade_name == 'boss' then
+                        TriggerEvent('esx_society:openBossMenu', ESX.PlayerData.job.name, function(data, menu)
+                            menu.close()
+                        end, {wash = false})
+                    end
+                end
+            end
+            function v.bossMenu:onExit()
+                if textUI then
+                    lib.hideTextUI()
+                    textUI = nil
+                end
+            end
+        end
     end
 end)
