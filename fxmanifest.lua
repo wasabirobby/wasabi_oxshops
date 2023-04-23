@@ -7,7 +7,7 @@ lua54 'yes'
 
 description 'Wasabi OX Inventory Player Owned Shops'
 author 'wasabirobby#5110'
-version '1.0.2'
+version '1.0.3'
 
 shared_scripts { '@ox_lib/init.lua', 'configuration/*.lua' }
 
