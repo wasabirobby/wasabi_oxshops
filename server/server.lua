@@ -1,14 +1,21 @@
 -----------------For support, scripts, and more----------------
 --------------- https://discord.gg/wasabiscripts  -------------
 ---------------------------------------------------------------
-ESX = exports['es_extended']:getSharedObject()
 local swapHook, buyHook
 
+if not Framework.ESX() and not Framework.QBCore() then
+	print('^1Framework not detected^0')
+	print('^1Framework not detected^0')
+	print('^1Framework not detected^0')
+	print('^1Framework not detected^0')
+end
+
 CreateThread(function()
-    while ESX == nil do Wait() end
-    for k,_ in pairs(Config.Shops) do
-        TriggerEvent('esx_society:registerSociety', k, k, 'society_'..k, 'society_'..k, 'society_'..k, {type = 'public'})
-    end
+	if Framework.ESX() then
+		for k,_ in pairs(Config.Shops) do
+			TriggerEvent('esx_society:registerSociety', k, k, 'society_'..k, 'society_'..k, 'society_'..k, {type = 'public'})
+		end
+	end
 end) 
 
 CreateThread(function()
@@ -51,13 +58,11 @@ CreateThread(function()
 
 	buyHook = exports.ox_inventory:registerHook('buyItem', function(payload)
 		local metadata = payload.metadata
-		 if metadata?.shopData then
-			 local price = metadata.shopData.price
-			 local count = payload.count
-			 exports.ox_inventory:RemoveItem(metadata.shopData.shop, payload.itemName, payload.count)
-			 TriggerEvent('esx_addonaccount:getSharedAccount', 'society_'..metadata.shopData.shop, function(account)
-				 account.addMoney(price)
-			 end)
+		if metadata?.shopData then
+			local price = metadata.shopData.price
+			local count = payload.count
+			exports.ox_inventory:RemoveItem(metadata.shopData.shop, payload.itemName, payload.count)
+			Framework.AddMoney(metadata.shopData.shop, price)
 		 end
 	 end, {})
 end)

@@ -1,22 +1,6 @@
 -----------------For support, scripts, and more----------------
 --------------- https://discord.gg/wasabiscripts  -------------
 ---------------------------------------------------------------
-ESX = exports['es_extended']:getSharedObject()
-
-RegisterNetEvent('esx:playerLoaded', function(xPlayer)
-    ESX.PlayerData = xPlayer
-    ESX.PlayerLoaded = true
-end)
-
-RegisterNetEvent('esx:onPlayerLogout', function()
-    table.wipe(ESX.PlayerData)
-    ESX.PlayerLoaded = false
-end)
-
-RegisterNetEvent('esx:setJob', function(job)
-    ESX.PlayerData.job = job
-end)
-
 
 RegisterNetEvent('wasabi_oxshops:setProductPrice')
 AddEventHandler('wasabi_oxshops:setProductPrice', function(shop, slot)
@@ -58,7 +42,7 @@ end)
 
 CreateThread(function()
     local textUI, points = nil, {}
-    while not ESX.PlayerLoaded do Wait(1000) end
+    while not Framework.PlayerLoaded do Wait(500) end
     for k,v in pairs(Config.Shops) do
         local stashLoc = v.locations.stash.coords
         local shopLoc = v.locations.shop.coords
@@ -87,7 +71,10 @@ CreateThread(function()
     end
     for k,v in pairs(points) do
         function v.stash:nearby()
-            if not self.isClosest or ESX.PlayerData.job.name ~= self.shop then return end
+            if not self.isClosest or Framework.PlayerData.job.name ~= self.shop then return end
+            if Config.DrawMarkers then
+                DrawMarker(2, self.coords.x, self.coords.y, self.coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 30, 150, 30, 222, false, false, 0, true, false, false, false)
+            end
             if self.currentDistance < self.distance then
                 if not textUI then
                     lib.showTextUI(Config.Shops[self.shop].locations.stash.string)
@@ -108,6 +95,9 @@ CreateThread(function()
 
         function v.shop:nearby()
             if not self.isClosest then return end
+            if Config.DrawMarkers then
+                DrawMarker(2, self.coords.x, self.coords.y, self.coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 30, 150, 30, 222, false, false, 0, true, false, false, false)
+            end
             if self.currentDistance < self.distance then
                 if not textUI then
                     lib.showTextUI(Config.Shops[self.shop].locations.shop.string)
@@ -129,15 +119,18 @@ CreateThread(function()
         if v?.bossMenu then
             function v.bossMenu:nearby()
                 if not self.isClosest then return end
-                if self.currentDistance < self.distance then
-                    if not textUI then
-                        lib.showTextUI(Config.Shops[self.shop].bossMenu.string)
-                        textUI = true
-                    end
-                    if IsControlJustReleased(0, 38) and ESX.PlayerData.job.grade_name == 'boss' then
-                        TriggerEvent('esx_society:openBossMenu', ESX.PlayerData.job.name, function(data, menu)
-                            menu.close()
-                        end, {wash = false})
+                if Framework.isBoss() then
+                    if self.currentDistance < self.distance then
+                        if Config.DrawMarkers then
+                            DrawMarker(2, self.coords.x, self.coords.y, self.coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 30, 150, 30, 222, false, false, 0, true, false, false, false)
+                        end
+                        if not textUI then
+                            lib.showTextUI(Config.Shops[self.shop].bossMenu.string)
+                            textUI = true
+                        end
+                        if IsControlJustReleased(0, 38) then
+                            Framework.OpenBossMenu(Framework.PlayerData.job.name)
+                        end
                     end
                 end
             end

@@ -5,6 +5,7 @@
 Config = {}
 
 Config.checkForUpdates = true -- Check for updates?
+Config.DrawMarkers = true -- draw markers when nearby?
 
 Config.Shops = {
     ['uwucafe'] = { -- Job name
