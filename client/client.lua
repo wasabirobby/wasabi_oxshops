@@ -1,30 +1,12 @@
 -----------------For support, scripts, and more----------------
 --------------- https://discord.gg/wasabiscripts  -------------
 ---------------------------------------------------------------
-ESX = exports['es_extended']:getSharedObject()
 
-RegisterNetEvent('esx:playerLoaded', function(xPlayer)
-    ESX.PlayerData = xPlayer
-    ESX.PlayerLoaded = true
-end)
-
-RegisterNetEvent('esx:onPlayerLogout', function()
-    table.wipe(ESX.PlayerData)
-    ESX.PlayerLoaded = false
-end)
-
-RegisterNetEvent('esx:setJob', function(job)
-    ESX.PlayerData.job = job
-end)
-
-
-RegisterNetEvent('wasabi_oxshops:setProductPrice')
-AddEventHandler('wasabi_oxshops:setProductPrice', function(shop, slot)
+RegisterNetEvent('wasabi_oxshops:setProductPrice', function(shop, slot)
     local input = lib.inputDialog(Strings.sell_price, {Strings.amount_input})
-    local price
-    if not input then price = 0 end
-    price = tonumber(input[1])
-    if price < 0 then price = 0 end
+    local price = not input and 0 or tonumber(input[1]) --[[@as number]]
+    price = price < 0 and 0 or price
+
     TriggerEvent('ox_inventory:closeInventory')
     TriggerServerEvent('wasabi_oxshops:setData', shop, slot, math.floor(price))
     lib.notify({
@@ -35,21 +17,20 @@ AddEventHandler('wasabi_oxshops:setProductPrice', function(shop, slot)
 end)
 
 local function createBlip(coords, sprite, color, text, scale)
-    local x,y,z = table.unpack(coords)
-    local blip = AddBlipForCoord(x, y, z)
+    local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
     SetBlipSprite(blip, sprite)
     SetBlipDisplay(blip, 4)
     SetBlipScale(blip, scale)
     SetBlipColour(blip, color)
     SetBlipAsShortRange(blip, true)
     BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString(text)
+    AddTextComponentSubstringPlayerName(text)
     EndTextCommandSetBlipName(blip)
     return blip
 end
 
 CreateThread(function()
-    for _,v in pairs(Config.Shops) do
+    for _, v in pairs(Config.Shops) do
         if v.blip.enabled then
             createBlip(v.blip.coords, v.blip.sprite, v.blip.color, v.blip.string, v.blip.scale)
         end
@@ -58,14 +39,8 @@ end)
 
 CreateThread(function()
     local textUI, points = nil, {}
-    while not ESX.PlayerLoaded do Wait(1000) end
+    while not PlayerLoaded do Wait(500) end
     for k,v in pairs(Config.Shops) do
-        local stashLoc = v.locations.stash.coords
-        local shopLoc = v.locations.shop.coords
-        local bossLoc
-        if v.bossMenu.enabled then
-            bossLoc = v.bossMenu.coords
-        end
         if not points[k] then points[k] = {} end
         points[k].stash = lib.points.new({
             coords = v.locations.stash.coords,
@@ -85,9 +60,13 @@ CreateThread(function()
             })
         end
     end
-    for k,v in pairs(points) do
+
+    for _, v in pairs(points) do
         function v.stash:nearby()
-            if not self.isClosest or ESX.PlayerData.job.name ~= self.shop then return end
+            if not self.isClosest or PlayerData.job.name ~= self.shop then return end
+            if Config.DrawMarkers then
+                DrawMarker(2, self.coords.x, self.coords.y, self.coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 30, 150, 30, 222, false, false, 0, true, false, false, false)
+            end
             if self.currentDistance < self.distance then
                 if not textUI then
                     lib.showTextUI(Config.Shops[self.shop].locations.stash.string)
@@ -98,6 +77,7 @@ CreateThread(function()
                 end
             end
         end
+
         function v.stash:onExit()
             if not self.isClosest then return end
             if textUI then
@@ -108,6 +88,9 @@ CreateThread(function()
 
         function v.shop:nearby()
             if not self.isClosest then return end
+            if Config.DrawMarkers then
+                DrawMarker(2, self.coords.x, self.coords.y, self.coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 30, 150, 30, 222, false, false, 0, true, false, false, false)
+            end
             if self.currentDistance < self.distance then
                 if not textUI then
                     lib.showTextUI(Config.Shops[self.shop].locations.shop.string)
@@ -118,6 +101,7 @@ CreateThread(function()
                 end
             end
         end
+
         function v.shop:onExit()
             if not self.isClosest then return end
             if textUI then
@@ -129,18 +113,22 @@ CreateThread(function()
         if v?.bossMenu then
             function v.bossMenu:nearby()
                 if not self.isClosest then return end
-                if self.currentDistance < self.distance then
-                    if not textUI then
-                        lib.showTextUI(Config.Shops[self.shop].bossMenu.string)
-                        textUI = true
-                    end
-                    if IsControlJustReleased(0, 38) and ESX.PlayerData.job.grade_name == 'boss' then
-                        TriggerEvent('esx_society:openBossMenu', ESX.PlayerData.job.name, function(data, menu)
-                            menu.close()
-                        end, {wash = false})
+                if IsBoss() then
+                    if self.currentDistance < self.distance then
+                        if Config.DrawMarkers then
+                            DrawMarker(2, self.coords.x, self.coords.y, self.coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 30, 150, 30, 222, false, false, 0, true, false, false, false)
+                        end
+                        if not textUI then
+                            lib.showTextUI(Config.Shops[self.shop].bossMenu.string)
+                            textUI = true
+                        end
+                        if IsControlJustReleased(0, 38) then
+                            OpenBossMenu(PlayerData.job.name)
+                        end
                     end
                 end
             end
+
             function v.bossMenu:onExit()
                 if textUI then
                     lib.hideTextUI()
