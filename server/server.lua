@@ -3,7 +3,7 @@
 ---------------------------------------------------------------
 local swapHook, buyHook
 
-if not IsESX() and not ISQBCore() then
+if not IsESX() and not IsQBCore() then
 	error('Framework not detected')
 end
 
