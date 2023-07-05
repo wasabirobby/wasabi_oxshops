@@ -18,8 +18,8 @@ if Config.checkForUpdates then
         end
     end)
 
-    CheckVersion = function(err, responseText, headers)
-        local repoVersion, repoURL, repoBody = GetRepoInformations()
+    function CheckVersion()
+        local repoVersion, repoURL = GetRepoInformations()
 
         CreateThread(function()
             if curVersion ~= repoVersion then
@@ -35,10 +35,10 @@ if Config.checkForUpdates then
         end)
     end
 
-    GetRepoInformations = function()
+    function GetRepoInformations()
         local repoVersion, repoURL, repoBody = nil, nil, nil
 
-        PerformHttpRequest("https://api.github.com/repos/wasabirobby/wasabi_oxshops/releases/latest", function(err, response, headers)
+        PerformHttpRequest("https://api.github.com/repos/wasabirobby/wasabi_oxshops/releases/latest", function(err, response)
             if err == 200 then
                 local data = json.decode(response)
 
@@ -53,7 +53,7 @@ if Config.checkForUpdates then
 
         repeat
             Wait(50)
-        until (repoVersion and repoURL and repoBody)
+        until repoVersion and repoURL and repoBody
 
         return repoVersion, repoURL, repoBody
     end

@@ -1,36 +1,35 @@
-if not Framework.ESX() then return end
+if not IsESX() then return end
 
 local ESX = exports['es_extended']:getSharedObject()
 
 RegisterNetEvent('esx:playerLoaded', function(xPlayer)
-    Framework.PlayerData = xPlayer
-    Framework.PlayerLoaded = true
+    PlayerData = xPlayer
+    PlayerLoaded = true
 end)
 
 RegisterNetEvent('esx:onPlayerLogout', function()
-    table.wipe(Framework.PlayerData)
-    Framework.PlayerLoaded = false
+    table.wipe(PlayerData)
+    PlayerLoaded = false
 end)
 
 RegisterNetEvent('esx:setJob', function(job)
-    Framework.PlayerData.job = job
+    PlayerData.job = job
 end)
 
-function Framework.isBoss()
-    return Framework.PlayerData.job.grade_name == 'boss'
+function IsBoss()
+    return PlayerData.job.grade_name == 'boss'
 end
 
-function Framework.OpenBossMenu(job)
-    TriggerEvent('esx_society:openBossMenu', job, function(data, menu)
+function OpenBossMenu(job)
+    TriggerEvent('esx_society:openBossMenu', job, function(_, menu)
         menu.close()
     end, {wash = false})
 end
 
-
 AddEventHandler('onResourceStart', function(resource)
     if cache.resource == resource then
         Wait(500)
-        Framework.PlayerData = ESX.GetPlayerData()
-        Framework.PlayerLoaded = true
+        PlayerData = ESX.GetPlayerData()
+        PlayerLoaded = true
     end
 end)

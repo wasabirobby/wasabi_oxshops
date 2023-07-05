@@ -3,7 +3,7 @@
 This resource was created as a free script to allow those with ox_inventory to have player owned shops
 
 ## Features
-- Supports ESX(Will port for QBCore soon)
+- Supports ESX and QBCore
 - Utilizes ox_inventory UI / stashes / shops / functions
 - Stock and set your own prices per product
 - Ability to add blip to location
@@ -11,8 +11,14 @@ This resource was created as a free script to allow those with ox_inventory to h
 - Deposits profits into society account of shop
 
 ## Dependency
+ESX
 - es_extended
 - esx_society
+
+QBCore
+- qb-core
+
+Default
 - [ox_inventory](https://github.com/overextended/ox_inventory/releases)
 
 ## Installation

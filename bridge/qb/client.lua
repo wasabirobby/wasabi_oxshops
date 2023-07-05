@@ -1,36 +1,35 @@
-if not Framework.QBCore() then return end
+if not IsQBCore() then return end
 
 local QBCore = exports['qb-core']:GetCoreObject()
 
 AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
-    Framework.PlayerData = QBCore.Functions.GetPlayerData()
-    Framework.PlayerLoaded = true
+    PlayerData = QBCore.Functions.GetPlayerData()
+    PlayerLoaded = true
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
-    Framework.PlayerData = {}
-    Framework.PlayerLoaded = false
+    PlayerData = {}
+    PlayerLoaded = false
 end)
 
-RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
-    Framework.PlayerData.job = JobInfo
+RegisterNetEvent('QBCore:Player:SetPlayerData', function(val)
+    local invokingResource = GetInvokingResource()
+    if invokingResource and invokingResource ~= 'qb-core' and invokingResource ~= 'qbx-core' then return end -- Not sure if this accounts for the provide setter
+    PlayerData = val
 end)
 
-
-function Framework.isBoss()
-    return Framework.PlayerData.job.isboss
+function IsBoss()
+    return PlayerData.job.isboss
 end
 
-function Framework.OpenBossMenu(job)
-    print(json.encode(job, {indent = true}))
+function OpenBossMenu()
     TriggerEvent('qb-bossmenu:client:OpenMenu')
 end
-
 
 AddEventHandler('onResourceStart', function(resource)
     if cache.resource == resource then
         Wait(500)
-        Framework.PlayerData = QBCore.Functions.GetPlayerData()
-        Framework.PlayerLoaded = true
+        PlayerData = QBCore.Functions.GetPlayerData()
+        PlayerLoaded = true
     end
 end)

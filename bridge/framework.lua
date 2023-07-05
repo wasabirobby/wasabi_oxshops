@@ -1,9 +1,10 @@
-Framework = {}
+PlayerData = {}
+PlayerLoaded = false
 
-function Framework.ESX()
+function IsESX()
     return GetResourceState("es_extended") ~= "missing"
 end
 
-function Framework.QBCore()
+function IsQBCore()
     return GetResourceState("qb-core") ~= "missing"
 end
