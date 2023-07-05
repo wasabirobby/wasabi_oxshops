@@ -8,7 +8,7 @@ use_experimental_fxv2_oal 'yes'
 
 description 'Wasabi OX Inventory Player Owned Shops'
 author 'wasabirobby#5110'
-version '1.0.3'
+version '1.0.4'
 
 shared_scripts {
     '@ox_lib/init.lua',
