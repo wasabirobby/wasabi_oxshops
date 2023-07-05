@@ -22,8 +22,8 @@ CreateThread(function()
 		local stash = {
 			id = k,
 			label = v.label..' '..Strings.inventory,
-			slots = 50,
-			weight = 100000,
+			slots = v.slots or 50,
+			weight = v.weight or 100000,
 		}
 		exports.ox_inventory:RegisterStash(stash.id, stash.label, stash.slots, stash.weight)
 		local items = exports.ox_inventory:GetInventoryItems(k, false)
