@@ -58,9 +58,9 @@ CreateThread(function()
 	swapHook = exports.ox_inventory:registerHook('swapItems', function(payload)
 		for k in pairs(Config.Shops) do
 			if payload.fromInventory == k then
-				TriggerEvent('ox_shops:refreshShop', k)
+				TriggerEvent('wasabi_oxshops:refreshShop', k)
 			elseif payload.toInventory == k and tonumber(payload.fromInventory) then
-				TriggerClientEvent('ox_shops:setProductPrice', payload.fromInventory, k, payload.toSlot)
+				TriggerClientEvent('wasabi_oxshops:setProductPrice', payload.fromInventory, k, payload.toSlot)
 			end
 		end
 	end, {})
@@ -74,7 +74,7 @@ CreateThread(function()
 	end, {})
 end)
 
-RegisterNetEvent('ox_shops:refreshShop', function(shop)
+RegisterNetEvent('wasabi_oxshops:refreshShop', function(shop)
 	Wait(250)
 	local items = exports.ox_inventory:GetInventoryItems(shop, false)
 	local stashItems = {}
@@ -96,7 +96,7 @@ RegisterNetEvent('ox_shops:refreshShop', function(shop)
 	})
 end)
 
-RegisterNetEvent('ox_shops:setData', function(shop, slot, price)
+RegisterNetEvent('wasabi_oxshops:setData', function(shop, slot, price)
 	local item = exports.ox_inventory:GetSlot(shop, slot)
 	if not item then return end
 
@@ -107,5 +107,5 @@ RegisterNetEvent('ox_shops:setData', function(shop, slot, price)
 	}
 
 	exports.ox_inventory:SetMetadata(shop, slot, metadata)
-	TriggerEvent('ox_shops:refreshShop', shop)
+	TriggerEvent('wasabi_oxshops:refreshShop', shop)
 end)
