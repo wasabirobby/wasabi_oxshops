@@ -6,6 +6,8 @@ Config = {}
 
 Config.checkForUpdates = true -- Check for updates?
 Config.DrawMarkers = true -- draw markers when nearby?
+Config.DefaultPrice = 100      -- Default price for items without metadata
+
 
 Config.Shops = {
     ['uwucafe'] = { -- Job name
